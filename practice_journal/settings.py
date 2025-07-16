@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure--@p*drh)h0jsx%)%_zt2na0d!z!qa%w%zh%$l(8w*zay^+$s^3
 DEBUG = False
 
 ALLOWED_HOSTS = [
-  "team-mango-jam-jar-b85c8c9471e3.herokuapp.com/",
+  "team-mango-jam-jar-b85c8c9471e3.herokuapp.com",
   "jam-jar-danmolloys-projects.vercel.app",
   "localhost",
   "127.0.0.1",
