@@ -30,7 +30,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
   "team-mango-jam-jar-b85c8c9471e3.herokuapp.com",
-  "jam-jar-danmolloys-projects.vercel.app",
+  "jam-jar-frontend-danmolloys-projects.vercel.app",
   "localhost",
   "127.0.0.1",
 ]
