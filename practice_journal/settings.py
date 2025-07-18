@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--@p*drh)h0jsx%)%_zt2na0d!z!qa%w%zh%$l(8w*zay^+$s^3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
   "team-mango-jam-jar-b85c8c9471e3.herokuapp.com",
@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'practice_journal.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-""" DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
@@ -119,10 +119,10 @@ WSGI_APPLICATION = 'practice_journal.wsgi.application'
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
-}  """
-DATABASES = {
+} 
+""" DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
-}
+} """
 
 AUTH_USER_MODEL = 'journal_core.CustomUser'
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')

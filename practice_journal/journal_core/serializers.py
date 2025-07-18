@@ -69,6 +69,12 @@ class DiaryEntrySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'author']
 
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if not user or not user.is_authenticated:
+            raise serializers.ValidationError("Author is required.")
+        validated_data['author'] = user
+        return super().create(validated_data)
 
 class AudioRecordingSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
@@ -93,6 +99,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
       read_only=True,
    )
    recordings = AudioRecordingSerializer(
+       many=True,
+       read_only=True
+   )
+   diary_entries = DiaryEntrySerializer(
        many=True,
        read_only=True
    )
