@@ -119,7 +119,7 @@ WSGI_APPLICATION = 'practice_journal.wsgi.application'
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
-} """
+}  """
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
