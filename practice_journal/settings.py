@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--@p*drh)h0jsx%)%_zt2na0d!z!qa%w%zh%$l(8w*zay^+$s^3'
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
   "team-mango-jam-jar-b85c8c9471e3.herokuapp.com",
@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'practice_journal.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
@@ -119,10 +119,10 @@ DATABASES = {
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
-} 
-""" DATABASES = {
+}  """
+DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
-} """
+}
 
 AUTH_USER_MODEL = 'journal_core.CustomUser'
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
