@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, viewsets
 from .models import PracticeItem, Goal
-from .serializers import PracticeItemSerializer, GoalSerializer, UserRegistrationSerializer, UserUpdateSerializer, AudioRecordingSerializer
+from .models.diary import DiaryEntry
+from .serializers import PracticeItemSerializer, GoalSerializer, UserRegistrationSerializer, UserUpdateSerializer, AudioRecordingSerializer, DiaryEntrySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -109,6 +110,18 @@ class CurrentUserView(APIView):
     def perform_create(self, serializer):
       serializer.context["student"] = self.request.user
       serializer.save() """
+
+class DiaryEntryViewSet(viewsets.ModelViewSet):
+    serializer_class = DiaryEntrySerializer
+    permission_classes = [IsAuthenticated]
+    queryset = DiaryEntry.objects.all()
+
+    def get_queryset(self):
+        return DiaryEntry.objects.filter(author=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 class PracticeItemViewSet(viewsets.ModelViewSet):
     serializer_class = PracticeItemSerializer

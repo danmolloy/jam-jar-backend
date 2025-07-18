@@ -56,18 +56,18 @@ class GoalSerializer(serializers.ModelSerializer):
       validated_data["assigned_by"] = assigned_by
       return super().create(validated_data)
    
-   class DiaryEntrySerializer(serializers.ModelSerializer):
-       class Meta:
-           model = DiaryEntry
-           fields = [
-               'date',
-               'title',
-               'body', 
-               'id', 
-               'created_at', 
-               'author'
-           ]
-           read_only_fields = ['id', 'created_at', 'author']
+class DiaryEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DiaryEntry
+        fields = [
+            'date',
+            'title',
+            'body', 
+            'id', 
+            'created_at', 
+            'author'
+        ]
+        read_only_fields = ['id', 'created_at', 'author']
 
 
 class AudioRecordingSerializer(serializers.ModelSerializer):

@@ -83,7 +83,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://jam-jar-frontend-danmolloys-projects.vercel.app",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 
 
 ROOT_URLCONF = 'practice_journal.urls'
