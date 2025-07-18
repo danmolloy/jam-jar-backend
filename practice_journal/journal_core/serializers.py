@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import PracticeItem, Goal
+from .models.diary import DiaryEntry
 from .models.recording import AudioRecording
 from .models.practice import achievements
 from .utils.s3 import generate_presigned_download_url
@@ -54,6 +55,19 @@ class GoalSerializer(serializers.ModelSerializer):
          raise serializers.ValidationError("Assigned by user is required.")
       validated_data["assigned_by"] = assigned_by
       return super().create(validated_data)
+   
+   class DiaryEntrySerializer(serializers.ModelSerializer):
+       class Meta:
+           model = DiaryEntry
+           fields = [
+               'date',
+               'title',
+               'body', 
+               'id', 
+               'created_at', 
+               'author'
+           ]
+           read_only_fields = ['id', 'created_at', 'author']
 
 
 class AudioRecordingSerializer(serializers.ModelSerializer):
@@ -104,6 +118,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
       'timezone', 
       'daily_target',
       'subscription_id', 
+      'subscription_status',
+      'diary_entries',
       'practice_items', 
       'full_achievements', 
       'goals',
