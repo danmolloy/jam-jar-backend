@@ -43,6 +43,11 @@ urlpatterns = [
     path('payments/', include('practice_journal.payments.urls')),
     path('api/recordings/upload-url/', views.create_presigned_upload, name='generate_persigned_upload'),
     path('api/recordings/save-recording/', views.save_recording_metadata, name='save_recording_metadata'),
+    path("api/password-reset/", include("django_rest_passwordreset.urls", namespace="password_reset")),
+    path('api/confirm-email/', views.confirm_email, name='confirm_email'),
+    path('api/resend-email-confirmation/', views.resend_email_confirmation, name='resend_email_confirmation'),
+    path('api/delete-account/', views.delete_account, name='delete_account'),
+
 ]
 
 urlpatterns += router.urls

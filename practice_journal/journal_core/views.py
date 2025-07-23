@@ -12,11 +12,15 @@ from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from .utils.s3 import generate_presigned_upload_url, delete_s3_file
 from django.views.decorators.csrf import csrf_exempt
-User = get_user_model()
 from django.shortcuts import get_object_or_404
-
 from practice_journal.journal_core.serializers import UserSerializer
+from django.conf import settings
+from .utils.email_utils import send_email_confirmation
+import json
 
+FRONTEND_URL = settings.FRONTEND_URL
+
+User = get_user_model()
 
 class UserRegistrationView(CreateAPIView):
     """View for user registration"""
@@ -28,8 +32,11 @@ class UserRegistrationView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         
+        # Send email confirmation
+        send_email_confirmation(user, is_new_user=True)
+        
         return Response({
-            'message': 'User created successfully',
+            'message': 'User created successfully. Please check your email to confirm your account.',
             'user': {
                 'id': user.id,
                 'username': user.username,
@@ -71,9 +78,31 @@ class UserViewSet(viewsets.ModelViewSet):
       if instance.id != request.user.id:
           return Response({"error": "You can only update your own profile"}, status=status.HTTP_403_FORBIDDEN)
       
+      # Check if email is being changed
+      old_email = instance.email
+      
       serializer = self.get_serializer(instance, data=request.data, partial=partial)
       serializer.is_valid(raise_exception=True)
       user = serializer.save()
+      
+      # If email changed, send confirmation email
+      if user.email != old_email:
+          user.email_confirmed = False  # Reset email confirmation
+          user.save(update_fields=['email_confirmed'])
+          send_email_confirmation(user, is_new_user=False)
+          
+          return Response({
+              'message': 'User updated successfully. Please check your new email to confirm the change.',
+              'user': {
+                  'id': user.id,
+                  'username': user.username,
+                  'email': user.email,
+                  'first_name': user.first_name,
+                  'last_name': user.last_name,
+                  'is_teacher': user.is_teacher,
+                  'email_confirmed': user.email_confirmed
+              }
+          }, status=status.HTTP_200_OK)
       
       return Response({
           'message': 'User updated successfully',
@@ -83,7 +112,8 @@ class UserViewSet(viewsets.ModelViewSet):
               'email': user.email,
               'first_name': user.first_name,
               'last_name': user.last_name,
-              'is_teacher': user.is_teacher
+              'is_teacher': user.is_teacher,
+              'email_confirmed': user.email_confirmed
           }
       }, status=status.HTTP_200_OK)
 
@@ -101,17 +131,73 @@ class CurrentUserView(APIView):
       return Response(serializer.data)
    
 
-""" class PracticeSessionViewSet(viewsets.ModelViewSet):
-    serializer_class = PracticeSessionSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = PracticeSession.objects.all()
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def confirm_email(request):
+    """Confirm email address with token"""
+    token = request.data.get('token')
+    
+    if not token:
+        return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(email_confirmation_token=token)
+        
+        if not user.is_email_confirmation_token_valid():
+            return Response({"error": "Token has expired. Please request a new confirmation email."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Confirm the email
+        user.email_confirmed = True
+        user.email_confirmation_token = None
+        user.email_confirmation_sent_at = None
+        user.save(update_fields=['email_confirmed', 'email_confirmation_token', 'email_confirmation_sent_at'])
+        
+        return Response({"message": "Email confirmed successfully!"}, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-      return PracticeSession.objects.filter(student=self.request.user)
 
-    def perform_create(self, serializer):
-      serializer.context["student"] = self.request.user
-      serializer.save() """
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def resend_email_confirmation(request):
+    """Resend email confirmation"""
+    user = request.user
+    
+    if user.email_confirmed:
+        return Response({"error": "Email is already confirmed"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Send confirmation email
+    if send_email_confirmation(user, is_new_user=False):
+        return Response({"message": "Confirmation email sent successfully"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Failed to send confirmation email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    """Delete user account and all associated data"""
+    user = request.user
+    
+    try:
+        # Delete all audio recordings from S3
+        recordings = AudioRecording.objects.filter(user=user)
+        for recording in recordings:
+            if recording.s3_key:
+                try:
+                    delete_s3_file(recording.s3_key)
+                except Exception as e:
+                    print(f"Error deleting S3 file {recording.s3_key}: {e}")
+        
+        # Delete all user data (this will cascade to related objects)
+        user.delete()
+        
+        return Response({"message": "Account deleted successfully"}, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({"error": f"Failed to delete account: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class DiaryEntryViewSet(viewsets.ModelViewSet):
     serializer_class = DiaryEntrySerializer

@@ -123,6 +123,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
       'username', 
       'recordings',
       'email', 
+      'email_confirmed',
       'is_teacher', 
       'points', 
       'timezone', 

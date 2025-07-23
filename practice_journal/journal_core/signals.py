@@ -1,33 +1,23 @@
-from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
-from .models import PracticeItem
-from django.contrib.auth import get_user_model
-from datetime import timedelta
+from django_rest_passwordreset.signals import reset_password_token_created
+from django.core.mail import send_mail
+from django.conf import settings
 
-User = get_user_model()
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    frontend_url = settings.FRONTEND_URL
+    reset_link = f"{frontend_url}/reset-password?token={reset_password_token.key}"
 
-""" @receiver(post_save, sender=PracticeItem)
-def update_practice_streak(sender, instance, created, **kwargs):
-    if not created:
-        return  
+    html = f"""
+    <p>Hello,</p>
+    <p>Click <a href="{reset_link}">here</a> to reset your password.</p>
+    <p>If you didn't request this, just ignore this email.</p>
+    """
 
-    user = instance.student
-    today = instance.date
-    yesterday = today - timedelta(days=1)
-
-    practiced_yesterday = PracticeItem.objects.filter(student=user, date=yesterday).exists()
-    practiced_today_already = PracticeItem.objects.filter(student=user, date=today).count() > 1
-
-    if practiced_today_already:
-        return  
-
-    if practiced_yesterday:
-        user.current_streak += 1
-    else:
-        user.current_streak = 1  
-
-    if user.current_streak > user.longest_streak:
-        user.longest_streak = user.current_streak
-
-    user.save() """
+    send_mail(
+        subject="Reset your Jam Jar password",
+        message="",  # Optional plain text fallback
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[reset_password_token.user.email],
+        html_message=html
+    ) 
