@@ -27,6 +27,7 @@ router.register(r'users', views.UserViewSet)
 router.register(r'practice-items', views.PracticeItemViewSet)
 router.register(r'goals', views.GoalViewSet)
 router.register(r'diary-entries', views.DiaryEntryViewSet)
+router.register(r'recordings', views.AudioRecordingViewSet)
 
 urlpatterns = [
     path("api/protected/", ProtectedView.as_view(), name="protected"),

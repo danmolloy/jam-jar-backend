@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions, viewsets
 from .models import PracticeItem, Goal
 from .models.diary import DiaryEntry
+from .models.recording import AudioRecording
 from .serializers import PracticeItemSerializer, GoalSerializer, UserRegistrationSerializer, UserUpdateSerializer, AudioRecordingSerializer, DiaryEntrySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,9 +10,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import CreateAPIView
 from rest_framework import status
-from .utils.s3 import generate_presigned_upload_url
+from .utils.s3 import generate_presigned_upload_url, delete_s3_file
 from django.views.decorators.csrf import csrf_exempt
 User = get_user_model()
+from django.shortcuts import get_object_or_404
 
 from practice_journal.journal_core.serializers import UserSerializer
 
@@ -151,6 +153,32 @@ class GoalViewSet(viewsets.ModelViewSet):
    
    def perform_create(self, serializer):
       serializer.save(assigned_by=self.request.user)
+
+class AudioRecordingViewSet(viewsets.ModelViewSet):
+    serializer_class = AudioRecordingSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = AudioRecording.objects.all()
+
+    def get_queryset(self):
+      return AudioRecording.objects.filter(user=self.request.user)
+   
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user"] = self.request.user
+        return context
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    def delete(self, pk):
+        recording = get_object_or_404(AudioRecording, pk=pk, user=self.request.user)
+
+        if recording.s3_key:
+            delete_s3_file(recording.s3_key)
+
+        recording.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @csrf_exempt
 @api_view(["POST"])

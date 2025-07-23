@@ -39,3 +39,12 @@ def generate_presigned_download_url(key):
     }, ExpiresIn=3600)
 
     return url
+
+def delete_s3_file(key):
+    s3 = boto3.client(
+        's3',
+        region_name=AWS_S3_REGION_NAME,
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+    s3.delete_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=key)
