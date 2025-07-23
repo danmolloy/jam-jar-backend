@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = settings.STRIPE_WEBHOOK_SECRET  # Add this to your .env
-
+STRIPE_PRICE_ID = settings.STRIPE_PRICE_ID
 frontend_url = settings.FRONTEND_URL
 
 class CreateCheckoutSessionView(APIView):
@@ -23,11 +23,10 @@ class CreateCheckoutSessionView(APIView):
     def post(self, request):
         try:
             # Get price ID from settings or use default
-            price_id = getattr(settings, 'STRIPE_PRICE_ID', 'price_1RlrCdBSlfYUsSLnLqEVOxQU')
             
             checkout_session = stripe.checkout.Session.create(
                 line_items=[{
-                    'price': price_id,
+                    'price': STRIPE_PRICE_ID,
                     'quantity': 1,
                 }],
                 mode='subscription',
