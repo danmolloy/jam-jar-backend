@@ -112,7 +112,7 @@ WSGI_APPLICATION = 'practice_journal.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
@@ -121,10 +121,10 @@ DATABASES = {
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
-} 
-""" DATABASES = {
+}  """
+DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
-} """
+}
 
 AUTH_USER_MODEL = 'journal_core.CustomUser'
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
