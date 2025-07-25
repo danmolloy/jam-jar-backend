@@ -131,6 +131,27 @@ class CurrentUserView(APIView):
       return Response(serializer.data)
    
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def check_username_availability(request):
+    """Check if a username is available"""
+    username = request.GET.get('username', '').strip()
+    
+    if not username:
+        return Response({
+            'available': False,
+            'message': 'Username is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if username exists
+    exists = User.objects.filter(username=username).exists()
+    
+    return Response({
+        'available': not exists,
+        'message': 'Username is available' if not exists else 'Username is already taken'
+    }, status=status.HTTP_200_OK)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def confirm_email(request):
