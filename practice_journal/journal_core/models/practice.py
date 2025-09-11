@@ -17,7 +17,7 @@ class PracticeItem(models.Model):
         related_name="practice_items"
     )
 
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=True)
     activity = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     rating = models.PositiveSmallIntegerField(
