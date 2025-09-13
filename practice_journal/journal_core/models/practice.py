@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.postgres.fields import ArrayField
+from datetime import date
 
 achievements = [
     {"id": 1, "name": "First Practice", "description": "Complete your first practice session", "type": "streak", "value": 1},
@@ -17,7 +18,7 @@ class PracticeItem(models.Model):
         related_name="practice_items"
     )
 
-    date = models.DateField(default=True)
+    date = models.DateField(default=date.today)
     activity = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     rating = models.PositiveSmallIntegerField(
