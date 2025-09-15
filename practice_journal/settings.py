@@ -31,6 +31,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [
   "team-mango-jam-jar-b85c8c9471e3.herokuapp.com",
   "jam-jar-frontend-danmolloys-projects.vercel.app",
+  "jamjar.site",
   "localhost",
   "127.0.0.1",
 ]
@@ -107,12 +108,13 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://jam-jar-frontend-danmolloys-projects.vercel.app",
-
+    "https://www.jamjar.site",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  
     "https://jam-jar-frontend-danmolloys-projects.vercel.app",
+    "https://www.jamjar.site",
 ]
 
 CORS_ALLOW_CREDENTIALS = False
