@@ -32,7 +32,7 @@ class CreateCheckoutSessionView(APIView):
                 mode='subscription',
                 customer_email=request.user.email,
                 success_url=f'{frontend_url}/',
-                cancel_url=f'{frontend_url}/account'
+                cancel_url=f'{frontend_url}/settings'
             )
             logger.info(f"Created checkout session {checkout_session.id} for user {request.user.email}")
             return Response({'sessionId': checkout_session.id})
