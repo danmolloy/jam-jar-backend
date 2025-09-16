@@ -176,14 +176,18 @@ AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 
-# Email configuration for SendGrid SMTP
+# Email configuration for AWS SES
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST = f'email-smtp.{config("AWS_S3_REGION_NAME", default="eu-north-1")}.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'  # This is always 'apikey' for SendGrid
-EMAIL_HOST_PASSWORD = config("SENDGRID_API_KEY")
+EMAIL_HOST_USER = config("AWS_SES_SMTP_USERNAME")
+EMAIL_HOST_PASSWORD = config("AWS_SES_SMTP_PASSWORD")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+
+# AWS SES Configuration
+AWS_SES_REGION_NAME = config("AWS_S3_REGION_NAME", default="eu-north-1")
+AWS_SES_REGION_ENDPOINT = f'email.{AWS_SES_REGION_NAME}.amazonaws.com'
 
 
 # Password validation

@@ -35,3 +35,4 @@ uritemplate==4.2.0
 urllib3==2.5.0
 whitenoise==6.9.0
 django-rest-passwordreset==1.5.0
+boto3==1.39.4

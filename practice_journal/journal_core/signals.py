@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django_rest_passwordreset.signals import reset_password_token_created
-from django.core.mail import send_mail
 from django.conf import settings
+from .utils.ses import send_html_email
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
@@ -14,10 +14,12 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     <p>If you didn't request this, just ignore this email.</p>
     """
 
-    send_mail(
+    # Create plain text version
+    plain_text = f"Click here to reset your password: {reset_link}"
+    
+    send_html_email(
         subject="Reset your Jam Jar password",
-        message="",  # Optional plain text fallback
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[reset_password_token.user.email],
-        html_message=html
+        html_content=html,
+        to_email=reset_password_token.user.email,
+        text_content=plain_text,
     ) 

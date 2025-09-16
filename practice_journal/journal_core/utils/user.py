@@ -3,7 +3,7 @@ from django.conf import settings
 
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from .sendgrid import send_email
+from .ses import send_email
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 FRONTEND_URL = settings.FRONTEND_URL

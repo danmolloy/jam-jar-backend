@@ -1,6 +1,6 @@
-from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
+from .ses import send_html_email
 
 def send_email_confirmation(user, is_new_user=False):
     """
@@ -29,15 +29,15 @@ def send_email_confirmation(user, is_new_user=False):
         """
     
     try:
-        send_mail(
+        # Create plain text version from HTML
+        plain_text = f"Please visit {confirmation_url} to confirm your email address."
+        
+        return send_html_email(
             subject=subject,
-            message="",  # Plain text fallback
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
+            html_content=html_message,
+            to_email=user.email,
+            text_content=plain_text,
         )
-        return True
     except Exception as e:
         print(f"Error sending email confirmation: {e}")
         return False 
