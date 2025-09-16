@@ -69,6 +69,8 @@ class StripeWebhookView(APIView):
         payload = request.body
         sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
         
+        logger.info(f"Webhook received - Content-Type: {request.content_type}, Body length: {len(payload)}")
+        
         if not sig_header:
             logger.error("No Stripe signature header found")
             return HttpResponse(status=400)
@@ -83,8 +85,11 @@ class StripeWebhookView(APIView):
         except stripe.error.SignatureVerificationError as e:
             logger.error(f"Invalid signature: {e}")
             return HttpResponse(status=400)
+        except Exception as e:
+            logger.error(f"Unexpected error constructing webhook event: {e}")
+            return HttpResponse(status=400)
 
-        logger.info(f"Received webhook event: {event['type']}")
+        logger.info(f"Received webhook event: {event['type']} - Event ID: {event.get('id', 'unknown')}")
 
         # Handle the event
         if event['type'] == 'checkout.session.completed':
@@ -120,6 +125,8 @@ class StripeWebhookView(APIView):
                     logger.info(f"Updated subscription status for user {user.email}: {status}")
                 except CustomUser.DoesNotExist:
                     logger.error(f"User with subscription {subscription_id} not found")
+                except Exception as e:
+                    logger.error(f"Error updating subscription status for {subscription_id}: {e}")
         
         elif event['type'] == 'customer.subscription.deleted':
             subscription = event['data']['object']
@@ -135,6 +142,8 @@ class StripeWebhookView(APIView):
                     logger.info(f"Marked subscription as canceled for user {user.email}")
                 except CustomUser.DoesNotExist:
                     logger.error(f"User with subscription {subscription_id} not found")
+                except Exception as e:
+                    logger.error(f"Error canceling subscription for {subscription_id}: {e}")
         
         elif event['type'] == 'invoice.payment_failed':
             invoice = event['data']['object']
@@ -150,6 +159,11 @@ class StripeWebhookView(APIView):
                     logger.info(f"Marked subscription as past_due for user {user.email}")
                 except CustomUser.DoesNotExist:
                     logger.error(f"User with subscription {subscription_id} not found")
+                except Exception as e:
+                    logger.error(f"Error handling payment failure for {subscription_id}: {e}")
+        
+        else:
+            logger.info(f"Unhandled webhook event type: {event['type']}")
 
         return HttpResponse(status=200)
 
