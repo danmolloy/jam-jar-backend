@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     timezone = models.CharField(max_length=100, default="Europe/London")
     subscription_id = models.CharField(max_length=100, blank=True, null=True)
     subscription_status = models.CharField(null=True, max_length=50)
-    daily_target = models.IntegerField(default=0)
+    daily_target = models.IntegerField(default=30)
     #current_streak = models.IntegerField(default=0)
     #longest_streak = models.IntegerField(default=0)
     achievements = ArrayField(models.IntegerField(), default=list)
