@@ -1,0 +1,13 @@
+# Treat frontend-related files as vendored so they don't skew language stats
+*.js linguist-vendored
+*.ts linguist-vendored
+*.css linguist-vendored
+*.scss linguist-vendored
+*.map linguist-vendored
+*.lock linguist-vendored
+
+# Ignore node_modules if present
+node_modules/* linguist-vendored
+
+# Explicitly mark Python as the main language
+*.py linguist-detectable=true
